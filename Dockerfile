@@ -1,24 +1,23 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:17-jdk-slim
-
+# Use a reliable OpenJDK 17 image
+FROM eclipse-temurin:17-jdk-jammy
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the Maven build files first to leverage caching
+# Copy Maven wrapper and pom.xml first (for caching)
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
 
 # Copy the source code
 COPY src src
 
-# Package the application (inside Docker)
+# Build the application (skip tests for faster build)
 RUN ./mvnw clean package -DskipTests
 
-# Copy the built jar to the working directory
+# Copy the jar file
 RUN cp target/*.jar app.jar
 
-# Expose the port your Spring Boot app runs on
+# Expose the port
 EXPOSE 8080
 
-# Command to run the jar
+# Run the Spring Boot app
 ENTRYPOINT ["java", "-jar", "app.jar"]
